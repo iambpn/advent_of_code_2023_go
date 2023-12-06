@@ -52,7 +52,7 @@ func scrapeNumber(lines [][]string, row, col int, cache []string) (int, []string
 			cache = append(cache, strconv.Itoa(row)+strconv.Itoa(i))
 
 			if i == len(lines[row])-1 {
-				end = i+1
+				end = i + 1
 			}
 			continue
 		}
@@ -86,6 +86,109 @@ func getSumOfAdjacentData(lines [][]string, row, col int) int {
 
 }
 
+func getAdjDataCount(tl, tm, tr, l, r, bl, bm, br int) (int, []int) {
+	partNumberCount := 0
+	adjData := []int{}
+
+	if tl > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, tl)
+	}
+
+	if tm > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, tm)
+	}
+
+	if tr > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, tr)
+	}
+
+	if l > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, l)
+	}
+
+	if r > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, r)
+	}
+
+	if bl > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, bl)
+	}
+
+	if bm > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, bm)
+	}
+
+	if br > 0 {
+		partNumberCount += 1
+		adjData = append(adjData, br)
+	}
+
+	return partNumberCount, adjData
+}
+
+func getProductOfGearAdjacentData(lines [][]string, row, col int) int {
+	cache := []string{}
+
+	tl, cache := scrapeNumber(lines, row-1, col-1, cache)
+	tm, cache := scrapeNumber(lines, row-1, col, cache)
+	tr, cache := scrapeNumber(lines, row-1, col+1, cache)
+	l, cache := scrapeNumber(lines, row, col-1, cache)
+	r, cache := scrapeNumber(lines, row, col+1, cache)
+	bl, cache := scrapeNumber(lines, row+1, col-1, cache)
+	bm, cache := scrapeNumber(lines, row+1, col, cache)
+	br, _ := scrapeNumber(lines, row+1, col+1, cache)
+
+	// gear is * symbol which is adjacent to exactly two part numbers
+	adjCount, adjData := getAdjDataCount(tl, tm, tr, l, r, bl, bm, br)
+
+	if adjCount != 2 {
+		return 0
+	}
+
+	return adjData[0] * adjData[1]
+}
+
+func part1(lines [][]string) int {
+	total := 0
+
+	// iterate through each characters
+	for i, line := range lines {
+		for j, char := range line {
+			if isDigit(byte(char[0])) || char == "." {
+				continue
+			}
+
+			total += getSumOfAdjacentData(lines, i, j)
+		}
+	}
+
+	return total
+}
+
+func part2(lines [][]string) int {
+	total := 0
+
+	// iterate through each characters
+	for i, line := range lines {
+		for j, char := range line {
+			if char != "*" {
+				continue
+			}
+
+			total += getProductOfGearAdjacentData(lines, i, j)
+		}
+	}
+
+	return total
+}
+
 func main() {
 	data, err := os.ReadFile("/home/bipin/Documents/Github/advent_of_code_2023_go/cmd/day3/input")
 
@@ -102,18 +205,9 @@ func main() {
 		lines = append(lines, strings.Split(cleaned, ""))
 	}
 
-	total := 0
+	// total := part1(lines)
 
-	// iterate through each characters
-	for i, line := range lines {
-		for j, char := range line {
-			if isDigit(byte(char[0])) || char == "." {
-				continue
-			}
-
-			total += getSumOfAdjacentData(lines, i, j)
-		}
-	}
+	total := part2(lines)
 
 	fmt.Println("Total: ", total)
 }
