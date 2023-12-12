@@ -49,8 +49,6 @@ func getTypeAndSimilarCount(word string) (string, int) {
 		}
 	}
 
-	fmt.Println(counter, max)
-
 	card_type := ""
 	switch max {
 	case 5:
@@ -76,6 +74,34 @@ func getTypeAndSimilarCount(word string) (string, int) {
 	return card_type, max
 }
 
+var cardRank = map[rune]int{
+	'2': 1,
+	'3': 2,
+	'4': 3,
+	'5': 4,
+	'6': 5,
+	'7': 6,
+	'8': 7,
+	'9': 8,
+	't': 9,
+	'j': 10,
+	'q': 11,
+	'k': 12,
+	'a': 13,
+}
+
+func compareCard(a, b rune) int {
+	if a == b {
+		return 0
+	}
+
+	if cardRank[a] > cardRank[b] {
+		return 1
+	}
+
+	return -1
+}
+
 func sortCards(cards map[string]int) {
 	groupCards := map[string][]string{}
 
@@ -85,16 +111,8 @@ func sortCards(cards map[string]int) {
 	}
 
 	// sort group cards
-	for group, cardKeys := range groupCards {
-		sorted := []string{}
-		for i, key := range cardKeys {
-			nextKey := ""
-			if len(cardKeys) > i {
-				nextKey = cardKeys[i+1]
-			}
-			
-		}
-	}
+	
+	fmt.Println(groupCards)
 }
 
 func part1(cards map[string]int) int {
@@ -104,8 +122,7 @@ func part1(cards map[string]int) int {
 }
 
 func main() {
-	data, err := os.ReadFile("/Users/imac/Documents/Github/advent_of_code_2023_go/cmd/day7/input.example")
-
+	data, err := os.ReadFile("/home/bipin/Documents/Github/advent_of_code_2023_go/cmd/day7/input.example")
 	if err != nil {
 		panic(err)
 	}
