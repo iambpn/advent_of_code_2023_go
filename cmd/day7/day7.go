@@ -113,10 +113,14 @@ func getTypeAndSimilarCount(word string) (string, int) {
 	case 4:
 		card_type = const_four
 	case 3:
-		if len(counter) == 2 {
-			card_type = const_fullHouse
-		} else {
-			card_type = const_three
+		{
+			_, hasJ := counter['J']
+
+			if len(counter) == 2 || len(counter) == 3 && hasJ {
+				card_type = const_fullHouse
+			} else {
+				card_type = const_three
+			}
 		}
 	case 2:
 		if len(counter) == 3 {
@@ -278,7 +282,7 @@ func part2(cards map[string]int) int {
 }
 
 func main() {
-	data, err := os.ReadFile("/Users/imac/Documents/Github/advent_of_code_2023_go/cmd/day7/input")
+	data, err := os.ReadFile("/home/bipin/Documents/Github/advent_of_code_2023_go/cmd/day7/input")
 	if err != nil {
 		panic(err)
 	}
