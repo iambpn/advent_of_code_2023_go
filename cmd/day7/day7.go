@@ -90,39 +90,108 @@ var cardRank = map[rune]int{
 	'a': 13,
 }
 
-func compareCard(a, b rune) int {
-	if a == b {
-		return 0
-	}
+func compareCard(a, b string) int {
+	for i, _ := range a {
+		if a[i] == b[i] {
+			continue
+		}
 
-	if cardRank[a] > cardRank[b] {
-		return 1
+		if cardRank[rune(strings.ToLower(a)[i])] > cardRank[rune(strings.ToLower(b)[i])] {
+			return 1
+		} else {
+			return -1
+		}
 	}
 
 	return -1
 }
 
-func sortCards(cards map[string]int) {
+func groupCards(cards map[string]int) map[string][]string {
 	groupCards := map[string][]string{}
 
 	for key, _ := range cards {
 		card_type, _ := getTypeAndSimilarCount(key)
 		groupCards[card_type] = append(groupCards[card_type], key)
 	}
+	return groupCards
+}
 
-	// sort group cards
-	
-	fmt.Println(groupCards)
+func sortCards(groupedCards map[string][]string) map[string][]string {
+	for group, cards := range groupedCards {
+		sortedCards := make([]string, len(cards))
+		copy(sortedCards, cards)
+
+		i, j := 0, 0
+		for i = 1; i < len(sortedCards); i++ {
+			key := sortedCards[i]
+			j = i - 1
+
+			for j >= 0 && compareCard(sortedCards[j], key) > 0 {
+				// swap
+				sortedCards[j+1] = sortedCards[j]
+				j -= 1
+			}
+
+			sortedCards[j+1] = key
+		}
+		groupedCards[group] = sortedCards
+	}
+
+	return groupedCards
+}
+
+func concatGroupedSortedCards(cards map[string][]string) []string{
+	sortedCards := []string{}
+
+	if val, ok := cards[const_highCard]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+	if val, ok := cards[const_onePair]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+	if val, ok := cards[const_twoPair]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+	if val, ok := cards[const_three]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+	if val, ok := cards[const_fullHouse]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+	if val, ok := cards[const_four]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+	if val, ok := cards[const_five]; ok {
+		sortedCards = append(sortedCards, val...)
+	}
+
+
+	return sortedCards
+
 }
 
 func part1(cards map[string]int) int {
-	// sortedCards := map[string]int{}
-	sortCards(cards)
-	return 0
+	groupedCards := groupCards(cards)
+	groupedSortedCards := sortCards(groupedCards)
+	sortedCards := concatGroupedSortedCards(groupedSortedCards);
+
+	total := 0
+	for i, key := range sortedCards{
+		mult := cards[key] * (i+1)
+		total += mult
+	}
+
+	return total
 }
 
 func main() {
-	data, err := os.ReadFile("/home/bipin/Documents/Github/advent_of_code_2023_go/cmd/day7/input.example")
+	data, err := os.ReadFile("/Users/imac/Documents/Github/advent_of_code_2023_go/cmd/day7/input")
 	if err != nil {
 		panic(err)
 	}
@@ -133,5 +202,5 @@ func main() {
 
 	total := part1(parsedData)
 
-	fmt.Print("Total: ", total)
+	fmt.Println("Total: ", total)
 }
