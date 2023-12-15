@@ -43,12 +43,48 @@ func findDirection(maps map[string][2]string, nextDestination string, directions
 	return 1 + findDirection(maps, maps[nextDestination][idx], directions, nextDirectionIdx+1)
 }
 
+func findDirectionPart2(maps map[string][2]string, nextDestination string, directions []string, nextDirectionIdx int) int {
+	if nextDestination[len(nextDestination)-1] == 'Z' {
+		return 0
+	}
+
+	if nextDirectionIdx == len(directions) {
+		nextDirectionIdx = 0
+	}
+
+	idx := 0
+	if directions[nextDirectionIdx] == "R" {
+		idx = 1
+	}
+
+	return 1 + findDirectionPart2(maps, maps[nextDestination][idx], directions, nextDirectionIdx+1)
+}
+
 func part1(text string) int {
 	directions, destinationMaps := parseData(text)
 
 	steps := findDirection(destinationMaps, "AAA", directions, 0)
 
 	return steps
+}
+
+func getGreatestCommonDivisor(x, y int) int {
+	for y != 0 {
+		tmp := x
+		x = y
+		y = tmp % y
+	}
+
+	return x
+}
+
+func getLcm(steps []int) int {
+	lcm := 1
+	for _, num := range steps {
+		gcd := getGreatestCommonDivisor(lcm, num)
+		lcm = (lcm * num) / gcd
+	}
+	return lcm
 }
 
 func part2(text string) int {
@@ -62,45 +98,17 @@ func part2(text string) int {
 		}
 	}
 
-	i := 0
-	steps := 0
-	for {
-		destZCount := 0
-		for _, key := range nextDestinations {
-			if key[len(key)-1] == 'Z' {
-				destZCount += 1
-			}
-		}
-
-		if destZCount == len(nextDestinations) {
-			break
-		}
-
-		if i == len(directions) {
-			i = 0
-		}
-
-		idx := 0
-		if directions[i] == "R" {
-			idx = 1
-		}
-
-		nextDest := []string{}
-		for _, key := range nextDestinations {
-			nextDest = append(nextDest, destinationMaps[key][idx])
-		}
-
-		nextDestinations = nextDest
-
-		steps += 1
-		i += 1
+	firstSteps := []int{}
+	for _, dest := range nextDestinations {
+		step := findDirectionPart2(destinationMaps, dest, directions, 0)
+		firstSteps = append(firstSteps, step)
 	}
 
-	return steps
+	return getLcm(firstSteps)
 }
 
 func main() {
-	data, err := os.ReadFile("/home/bipin/Documents/Github/advent_of_code_2023_go/cmd/day8/input.example3")
+	data, err := os.ReadFile("/home/bipin/Documents/Github/advent_of_code_2023_go/cmd/day8/input")
 
 	if err != nil {
 		panic(err)
